@@ -7,7 +7,7 @@ int main(int argc, const char * argv[])
 {
     @autoreleasepool {
         if (argc < 2) {
-            NSLog(@"usage: remind \"reminder title\"");
+            NSLog(@"usage: remind \"title of task\"");
             return 1;
         }
         
@@ -23,7 +23,7 @@ int main(int argc, const char * argv[])
             }
         }
         if (!reminder.calendar) {
-            NSLog(@"could not find specified calendar.");
+            NSLog(@"could not find specified calendar \"%@\".", kCalendarTitle);
             return 1;
         }
         
