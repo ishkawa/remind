@@ -1,6 +1,8 @@
 #import <Foundation/Foundation.h>
 #import <EventKit/EventKit.h>
 
+NSString *const kCalendarTitle = @"Reminder";
+
 int main(int argc, const char * argv[])
 {
     @autoreleasepool {
@@ -10,16 +12,20 @@ int main(int argc, const char * argv[])
         }
         
         EKEventStore *store = [[EKEventStore alloc] initWithAccessToEntityTypes:EKEntityMaskReminder];
-        NSArray *calendars = [store calendarsForEntityType:EKEntityTypeReminder];
+        EKReminder *reminder = [EKReminder reminderWithEventStore:store];
         
-        if (![calendars count]) {
-            NSLog(@"could not find any calendar.");
+        reminder.title = [NSString stringWithCString:argv[1] encoding:NSUTF8StringEncoding];
+        
+        for (EKCalendar *calendar in [store calendarsForEntityType:EKEntityTypeReminder]) {
+            if ([calendar.title isEqualToString:kCalendarTitle]) {
+                reminder.calendar = calendar;
+                break;
+            }
+        }
+        if (!reminder.calendar) {
+            NSLog(@"could not find specified calendar.");
             return 1;
         }
-        
-        EKReminder *reminder = [EKReminder reminderWithEventStore:store];
-        reminder.title = [NSString stringWithCString:argv[1] encoding:NSUTF8StringEncoding];
-        reminder.calendar = [calendars objectAtIndex:0];
         
         NSError *error = nil;
         if (![store saveReminder:reminder commit:YES error:&error]) {
