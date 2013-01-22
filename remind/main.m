@@ -1,29 +1,37 @@
 #import <Foundation/Foundation.h>
 #import <EventKit/EventKit.h>
 
-NSString *const kCalendarTitle = @"Reminder";
+NSString *const ISDefaultCalendarTitle = @"Reminder";
 
 int main(int argc, const char * argv[])
 {
     @autoreleasepool {
         if (argc < 2) {
-            NSLog(@"usage: remind \"title of task\"");
+            printf("usage: remind [calendar] \"title of task\"");
             return 1;
+        }
+        
+        NSInteger bodyIndex = 1;
+        NSString *calendarTitle = ISDefaultCalendarTitle;
+        
+        if (argc > 2) {
+            bodyIndex = 2;
+            calendarTitle = [NSString stringWithCString:argv[1] encoding:NSUTF8StringEncoding];
         }
         
         EKEventStore *store = [[EKEventStore alloc] initWithAccessToEntityTypes:EKEntityMaskReminder];
         EKReminder *reminder = [EKReminder reminderWithEventStore:store];
-        
-        reminder.title = [NSString stringWithCString:argv[1] encoding:NSUTF8StringEncoding];
+
+        reminder.title = [NSString stringWithCString:argv[bodyIndex] encoding:NSUTF8StringEncoding];
         
         for (EKCalendar *calendar in [store calendarsForEntityType:EKEntityTypeReminder]) {
-            if ([calendar.title isEqualToString:kCalendarTitle]) {
+            if ([calendar.title caseInsensitiveCompare:calendarTitle] == NSOrderedSame) {
                 reminder.calendar = calendar;
                 break;
             }
         }
         if (!reminder.calendar) {
-            NSLog(@"could not find specified calendar \"%@\".", kCalendarTitle);
+            NSLog(@"could not find specified calendar \"%@\".", ISDefaultCalendarTitle);
             return 1;
         }
         

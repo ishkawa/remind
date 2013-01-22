@@ -12,3 +12,8 @@ cd build/Release
 remind "title of task"
 ```
 
+## Usage
+
+```
+remind [calender] "title of task"
+```
